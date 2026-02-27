@@ -1,0 +1,103 @@
+# Large binary files
+*.tar.xz
+*.AppImage
+*.deb
+*.pdf
+
+# Build artifacts
+build/
+install/
+log/
+__pycache__/
+*.pyc
+.mypy_cache/
+*.egg-info/
+
+# Virtual environments
+.venv/
+ros2_env/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+
+# System / personal
+.bash_history*
+.cache/
+.config/
+.local/
+.gnome/
+.gnupg/
+.nv/
+.pki/
+.ssh/
+.docker/
+.dotnet/
+snap/
+.sudo_as_admin_successful
+.xinputrc
+.zshrc
+.profile
+.bash_logout
+.bashrc*
+.Xauthority/
+.nvidia-omniverse/
+.nvidia-settings-rc
+.claude/
+.claude.json
+
+# Korean-named system folders
+공개/
+다운로드/
+문서/
+바탕화면/
+비디오/
+사진/
+음악/
+템플릿/
+
+# Isaac Sim (large)
+omniverse/
+
+# Misc
+*.jpg
+*.png
+*.jpeg
+cuda-keyring_1.1-1_all.deb
+설치 히스토리
+ros2_설치 디버그
+
+# Nested .git directories (submodules handled separately)
+cobot_magic_ws/.git
+piper_ws/.git
+async_diffusion_policy-master/.git
+cobot_magic_ws/aloha-docker/cobot_magic_ws/.git
+cobot_magic_backup/
+piper_ws_/
+ros2_pytorch_ws/
+
+# Large archives inside workspaces
+cobot_magic_ws/cudnn-linux-x86_64-8.6.0.163_cuda11-archive.tar.xz
+cobot_magic_ws/magic-aloha-docker/
+cobot_magic_ws/aloha-docker/
+cobot_magic_ws/cobot_magic_four/aloha-devel/robomimic/
+cobot_magic_ws/cobot_magic_four/camera_ws/
+cobot_magic_ws/cobot_magic_four/follow_control/follow1/
+cobot_magic_ws/cobot_magic_four/follow_control/follow2/
+cobot_magic_ws/cobot_magic_two/camera_ws/
+cobot_magic_ws/cobot_magic_two/piper_ros_ws/
+piper_ws/build/
+piper_ws/install/
+piper_ws/log/
+
+# ROBOTIS binaries (large)
+ROBOTIS/
+
+# ROS cache
+.ros/
+.rviz2/
+
+# Misc duplicates
+Dockerfile\ *
+piper_ws_/

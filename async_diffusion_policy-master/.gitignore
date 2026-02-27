@@ -1,0 +1,14 @@
+# MCP configuration (contains tokens)
+.mcp.json
+.claude/
+.env
+
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+assets/checkpoints/
+assets/data/
+
+# Old version (deprecated)
+old_async_dp/
