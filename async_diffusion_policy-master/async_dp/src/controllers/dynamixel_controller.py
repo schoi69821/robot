@@ -2,6 +2,7 @@
 Dynamixel Robot Controller
 Ready-to-use controller for Dynamixel-based robots (VX300s, etc.)
 """
+import math
 import numpy as np
 import time
 import logging
@@ -60,8 +61,8 @@ class DynamixelConfig(ControllerConfig):
     position_max: int = 4095
 
     # Conversion factors
-    position_to_rad: float = 0.001534  # 4096 units = 2*pi rad
-    velocity_to_rad_s: float = 0.229 * (2 * 3.14159 / 60)  # rpm to rad/s
+    position_to_rad: float = 2 * math.pi / 4096  # 4096 units = 2*pi rad
+    velocity_to_rad_s: float = 0.229 * (2 * math.pi / 60)  # rpm to rad/s
 
     # Motion profile
     profile_velocity: int = 100      # 0-32767
@@ -184,8 +185,15 @@ class DynamixelController(BaseRobotController):
             self._group_sync_read_vel.addParam(motor_id)
 
     def _setup_motors(self):
-        """Setup motor parameters."""
+        """Setup motor parameters.
+
+        Dynamixel requires torque OFF before changing operating mode.
+        Sequence: Torque OFF -> Set mode -> Set profile -> Torque ON
+        """
         for motor_id in self.dxl_config.motor_ids:
+            # Torque OFF first (required before changing operating mode)
+            self._write_register(motor_id, ADDR_TORQUE_ENABLE, 0, 1)
+
             # Set operating mode to position control (3)
             self._write_register(motor_id, ADDR_OPERATING_MODE, 3, 1)
 
@@ -199,19 +207,29 @@ class DynamixelController(BaseRobotController):
             self._write_register(motor_id, ADDR_TORQUE_ENABLE, 1, 1)
 
     def _write_register(self, motor_id: int, address: int, value: int, length: int):
-        """Write to motor register."""
+        """Write to motor register with result checking."""
         if length == 1:
-            self._packet_handler.write1ByteTxRx(
+            result, error = self._packet_handler.write1ByteTxRx(
                 self._port_handler, motor_id, address, value
             )
         elif length == 2:
-            self._packet_handler.write2ByteTxRx(
+            result, error = self._packet_handler.write2ByteTxRx(
                 self._port_handler, motor_id, address, value
             )
         elif length == 4:
-            self._packet_handler.write4ByteTxRx(
+            result, error = self._packet_handler.write4ByteTxRx(
                 self._port_handler, motor_id, address, value
             )
+        else:
+            logger.error(f"[Dynamixel] Invalid write length: {length}")
+            return
+
+        if result != COMM_SUCCESS:
+            logger.warning(f"[Dynamixel] Write failed ID={motor_id} addr={address}: "
+                          f"{self._packet_handler.getTxRxResult(result)}")
+        elif error != 0:
+            logger.warning(f"[Dynamixel] Hardware error ID={motor_id} addr={address}: "
+                          f"{self._packet_handler.getRxPacketError(error)}")
 
     def _disconnect_hardware(self) -> None:
         """Disconnect from Dynamixel motors."""
@@ -289,11 +307,11 @@ class DynamixelController(BaseRobotController):
                 raw_pos = int(action[i] / self.dxl_config.position_to_rad + 2048)
 
                 # Clamp to valid range
-                raw_pos = np.clip(
+                raw_pos = int(np.clip(
                     raw_pos,
                     self.dxl_config.position_min,
                     self.dxl_config.position_max
-                )
+                ))
 
                 # Pack position data
                 param = [
